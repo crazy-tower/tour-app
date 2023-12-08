@@ -18,7 +18,7 @@ export default function Map({queries}: Props) {
   const googleMapsApiKey = "AIzaSyC57ZEWlM5UYjTnkwdZpO2M4fezr-AYlgA";
 
   const loadMap = () => {
-    let script = document.createElement("script");
+    const script = document.createElement("script");
     script.type = "text/javascript";
     script.src = `https://maps.googleapis.com/maps/api/js?key=${googleMapsApiKey}&callback=initMap&libraries=places`;
     script.async = true;
@@ -33,7 +33,7 @@ export default function Map({queries}: Props) {
     const infoWindow = new google.maps.InfoWindow();
 
     const map = new google.maps.Map(
-      document.getElementById("map") as HTMLElement,
+      document.getElementById("map")!,
       {
         center: sydney,
         zoom: 8,
@@ -43,9 +43,7 @@ export default function Map({queries}: Props) {
 
     const service = new google.maps.places.PlacesService(map);
 
-    for (let i = 0; i < queries.length; i++) {
-
-      const query = queries[i]??"";
+    for (const query of queries) {
       const request: google.maps.places.FindPlaceFromQueryRequest = {
         query,
         fields: ["name", "geometry", "photos"],
@@ -57,9 +55,7 @@ export default function Map({queries}: Props) {
           status: google.maps.places.PlacesServiceStatus
         ) => {
           if (status === google.maps.places.PlacesServiceStatus.OK && results) {
-            for (let i = 0; i < results.length; i++) {
-              const result = results[i];
-              if(!result) continue;
+            for (const result of results) {
               createMarker(map, infoWindow, result)
             }
   
@@ -76,17 +72,17 @@ export default function Map({queries}: Props) {
     infowindow: google.maps.InfoWindow,
     place: google.maps.places.PlaceResult
   ) => {
-    if (!place.geometry || !place.geometry.location || !place.photos) return;
+    if (!place.geometry!.location || !place.photos) return;
 
     const marker = new google.maps.Marker({
       map,
-      position: place.geometry.location,
+      position: place.geometry!.location,
       title: place.name,
       // icon: place.photos![0].getUrl({ maxWidth: 50, maxHeight: 50 }),
     });
 
     google.maps.event.addListener(marker, "click", () => {
-      infowindow.setContent(place.name || "");
+      infowindow.setContent(place.name??"");
       infowindow.open(map);
     });
 
